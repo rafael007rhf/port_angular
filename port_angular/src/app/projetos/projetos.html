@@ -1,22 +1,34 @@
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>Meus Projetos</mat-card-title>
-    <mat-card-subtitle>
-      Trabalhos desenvolvidos durante minha trajetória na área de tecnologia
-    </mat-card-subtitle>
-  </mat-card-header>
+<h1>Meus projetos</h1>
 
-  <mat-card-content>
-    <p>
-      Nesta seção, apresento alguns projetos desenvolvidos durante meus estudos
-      no curso Técnico em Informática e em atividades práticas relacionadas à
-      programação, desenvolvimento web e tecnologia.
-    </p>
+@if (carregando) {
+  <p>Carregando projetos...</p>
+}
 
-    <p>
-      Os projetos têm como objetivo aplicar os conhecimentos aprendidos em sala
-      de aula, praticar novas tecnologias e desenvolver soluções para problemas
-      reais.
-    </p>
-</mat-card-content>
-   
+@if (erro) {
+  <p class="mensagem-erro" role="alert">{{ erro }}</p>
+}
+
+@if (!carregando && !erro && projetos.length === 0) {
+  <p>Nenhum projeto publicado ainda.</p>
+}
+
+<section class="lista-cards">
+  @for (p of projetos; track p.id) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ p.nome }}</mat-card-title>
+        <mat-card-subtitle>{{ p.tecnologias }} · {{ p.ano }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p>{{ p.descricao }}</p>
+      </mat-card-content>
+
+      @if (p.link_github) {
+        <mat-card-actions>
+          <a mat-button [href]="p.link_github" target="_blank" rel="noopener">Ver no GitHub</a>
+        </mat-card-actions>
+      }
+    </mat-card>
+  }
+</section>

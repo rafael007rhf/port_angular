@@ -1,0 +1,9 @@
+.lista-cards {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+}
+
+.mensagem-erro {
+  color: var(--mat-sys-error);
+}

@@ -362,3 +362,19 @@ Algumas melhorias que podem ser adicionadas futuramente:
 Aluno do curso Técnico em Informática do IFPR CRPG.
 
 Projeto desenvolvido para a disciplina de Desenvolvimento Web III.
+
+## Aula 17 / Atividade 13
+
+Nesta etapa, as telas deixaram os dados fixos e passaram a consumir a API PHP por meio de services Angular. A URL de cada endpoint está em uma única propriedade do service correspondente.
+
+### 🎯 Autoavaliação — Atividade 13
+
+**Conceito pretendido: A.**
+
+- O `HttpClient` foi habilitado em `port_angular/src/app/app.config.ts:2-11`.
+- `port_angular/src/app/projeto.service.ts:14-21` faz o GET de projetos, enquanto `port_angular/src/app/projetos/projetos.ts:12-30` controla carregamento, sucesso e erro.
+- `port_angular/src/app/projetos/projetos.html:3-32` usa `@if`, `@for`, estado vazio e o botão **Ver no GitHub** com `[href]`.
+- O Catálogo foi incluído na rota e no menu. `port_angular/src/app/tecnologia.service.ts:13-20` faz o GET e `port_angular/src/app/catalogo/catalogo.ts:11-29` trata os estados da tela.
+- `port_angular/src/app/catalogo/catalogo.html:3-30` também apresenta carregamento, erro, lista vazia e cards gerados com `@for`.
+
+O extra do conceito A é o estado vazio nas duas telas: “Nenhum projeto publicado ainda.” e “Nenhuma tecnologia cadastrada ainda.”

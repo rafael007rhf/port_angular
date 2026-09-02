@@ -1,0 +1,30 @@
+<h1>Catálogo de tecnologias</h1>
+
+@if (carregando) {
+  <p>Carregando tecnologias...</p>
+}
+
+@if (erro) {
+  <p class="mensagem-erro" role="alert">{{ erro }}</p>
+}
+
+@if (!carregando && !erro && tecnologias.length === 0) {
+  <p>Nenhuma tecnologia cadastrada ainda.</p>
+}
+
+<section class="lista-cards">
+  @for (tecnologia of tecnologias; track tecnologia.id) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ tecnologia.nome }}</mat-card-title>
+        <mat-card-subtitle>
+          {{ tecnologia.categoria }} · criada em {{ tecnologia.ano_criacao }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p>{{ tecnologia.descricao }}</p>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>
