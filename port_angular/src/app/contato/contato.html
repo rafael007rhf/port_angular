@@ -33,6 +33,7 @@
           type="text"
           formControlName="nome"
           autocomplete="name"
+          required
           aria-describedby="erro-nome"
           [attr.aria-invalid]="form.controls.nome.invalid && form.controls.nome.touched"
         />
@@ -46,6 +47,7 @@
           type="email"
           formControlName="email"
           autocomplete="email"
+          required
           aria-describedby="erro-email"
           [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
         />
@@ -58,6 +60,7 @@
           id="mensagem"
           formControlName="mensagem"
           rows="6"
+          required
           aria-describedby="erro-mensagem"
           [attr.aria-invalid]="form.controls.mensagem.invalid && form.controls.mensagem.touched"
         ></textarea>

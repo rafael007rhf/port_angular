@@ -1,12 +1,22 @@
-<mat-toolbar color="primary">
-<span>Meu Portfólio</span>
-<span class="espacador"></span>
-<a mat-button routerLink="/" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }">Início</a>
-<a mat-button routerLink="/sobre" routerLinkActive="ativo">Sobre</a>
-<a mat-button routerLink="/projetos" routerLinkActive="ativo">Projetos</a>
-<a mat-button routerLink="/catalogo" routerLinkActive="ativo">Catálogo</a>
-<a mat-button routerLink="/contato" routerLinkActive="ativo">Contato</a>
+<mat-toolbar class="barra-navegacao" color="primary">
+  <span class="titulo">Meu Portfólio</span>
+  <nav class="links-navegacao" aria-label="Navegação principal">
+    <a
+      mat-button
+      routerLink="/"
+      routerLinkActive="ativo"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      Início
+    </a>
+    <a mat-button routerLink="/sobre" routerLinkActive="ativo">Sobre</a>
+    <a mat-button routerLink="/projetos" routerLinkActive="ativo">Projetos</a>
+    <a mat-button routerLink="/catalogo" routerLinkActive="ativo">Catálogo</a>
+    <a mat-button routerLink="/contato" routerLinkActive="ativo">Contato</a>
+    <a mat-button routerLink="/gestao" routerLinkActive="ativo">Gestão</a>
+  </nav>
 </mat-toolbar>
-<main style="padding: 24px;">
-<router-outlet></router-outlet>
+
+<main class="conteudo">
+  <router-outlet></router-outlet>
 </main>

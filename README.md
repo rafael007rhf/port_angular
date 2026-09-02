@@ -1,397 +1,205 @@
 # Port Angular
 
-Projeto de portfólio pessoal desenvolvido com Angular, com o objetivo de apresentar informações profissionais, habilidades, projetos, experiências e formas de contato em uma interface moderna, responsiva e organizada.
+Portfólio de Rafael Freire desenvolvido na disciplina de Desenvolvimento Web II. O frontend continua em Angular com Angular Material e o backend continua em PHP com PDO e MariaDB.
 
-## Sobre o projeto
+## Como executar
 
-É um portfólio do aluno **Rafael Freire**, desenvolvido para a disciplina **Desenvolvimento Web III**, do **IFPR - Campus Curitiba, Centro de Referência de Ponta Grossa**.
+O arquivo `sql/setup.sql` prepara o banco `dwii_db`, as tabelas e os dados iniciais. Ele contém comandos de criação, portanto deve ser usado em um banco novo; não execute o arquivo inteiro sobre um banco já preenchido sem antes conferir os dados.
 
-O projeto foi criado com Angular e tem como objetivo principal servir como uma página pessoal/profissional, reunindo informações sobre o desenvolvedor, suas habilidades técnicas, projetos desenvolvidos e formas de contato.
-
-Além disso, o projeto também foi utilizado como prática dos principais conceitos de desenvolvimento front-end com Angular, como criação de componentes, organização da aplicação, uso de rotas, navegação entre páginas e aplicação de elementos visuais com Angular Material.
-
-## Objetivos do projeto
-
-O projeto tem como principais objetivos:
-
-* Apresentar o perfil do desenvolvedor de forma clara e profissional;
-* Exibir habilidades técnicas e conhecimentos na área de tecnologia;
-* Mostrar projetos já desenvolvidos;
-* Praticar conceitos de desenvolvimento front-end com Angular;
-* Trabalhar com componentes reutilizáveis;
-* Criar uma aplicação com múltiplas páginas;
-* Utilizar navegação por rotas;
-* Aplicar componentes visuais do Angular Material;
-* Organizar o projeto de forma limpa e estruturada;
-* Versionar o progresso do desenvolvimento utilizando Git e GitHub.
-
-## Versão das tecnologias
-
-As versões utilizadas no desenvolvimento do projeto foram:
-
-* npm: 11.9.0
-* node: v24.14.0
-* Angular CLI: 21.2.13
-* Angular Material: utilizado para componentes visuais da interface
-
-## Funcionalidades
-
-A aplicação pode conter as seguintes seções e funcionalidades:
-
-* Página inicial com apresentação;
-* Seção sobre o desenvolvedor;
-* Lista de habilidades técnicas;
-* Área de projetos;
-* Links para GitHub, LinkedIn ou outras redes;
-* Seção de contato;
-* Layout responsivo para computador, tablet e celular;
-* Organização por componentes Angular;
-* Navegação entre páginas sem recarregar o site;
-* Interface com elementos do Angular Material;
-* Estrutura preparada para futuras melhorias.
-
-## O que foi desenvolvido na aula
-
-Durante a aula, o projeto deixou de ser apenas uma tela simples e passou a ter uma estrutura inicial de portfólio navegável.
-
-Foram trabalhados os conceitos de **componentes**, **layout** e **navegação** dentro do Angular. A proposta foi criar a “casca” do portfólio, ou seja, a estrutura base da aplicação, com páginas separadas e links de navegação entre elas.
-
-A aplicação passou a contar com quatro páginas principais:
-
-* Home;
-* Sobre;
-* Projetos;
-* Contato.
-
-Cada uma dessas páginas foi criada como um componente independente, seguindo a organização padrão do Angular.
-
-## Componentes criados
-
-Foram gerados quatro componentes principais utilizando o Angular CLI:
+Na raiz do repositório, inicie a API:
 
 ```bash
-ng generate component home
-ng generate component sobre
-ng generate component projetos
-ng generate component contato
+/usr/bin/php -S 0.0.0.0:8000
 ```
 
-Esses comandos criaram as pastas e arquivos de cada componente dentro de `src/app`.
-
-Cada componente possui sua própria estrutura, contendo arquivos de template HTML, estilo CSS, arquivo TypeScript e arquivo de teste.
-
-A criação desses componentes permite separar melhor cada parte do site, deixando o projeto mais organizado e fácil de manter.
-
-## Página Home
-
-A página **Home** foi criada para ser a tela inicial do portfólio.
-
-Ela apresenta uma introdução sobre o desenvolvedor e funciona como porta de entrada para o site.
-
-Nessa página foi utilizado o componente `mat-card` do Angular Material para criar um cartão visual com título, subtítulo e conteúdo.
-
-Exemplo da ideia implementada:
-
-```html
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>Olá, eu sou Rafael Freire!</mat-card-title>
-    <mat-card-subtitle>Técnico em Informática - IFPR CRPG</mat-card-subtitle>
-  </mat-card-header>
-
-  <mat-card-content>
-    <p>
-      Seja bem-vindo ao meu portfólio desenvolvido com Angular.
-      Aqui você poderá conhecer melhor minha trajetória, meus projetos,
-      minhas habilidades e meus interesses na área da tecnologia.
-    </p>
-  </mat-card-content>
-</mat-card>
-```
-
-## Página Sobre
-
-A página **Sobre** foi estruturada para apresentar informações mais completas sobre o aluno.
-
-Ela contém uma descrição pessoal e acadêmica, explicando quem é o desenvolvedor, sua formação, seus interesses na área de tecnologia e o objetivo do portfólio.
-
-Essa página também utiliza `mat-card`, seguindo o mesmo padrão visual da página inicial.
-
-O conteúdo foi organizado em seções, como:
-
-* Quem sou eu;
-* Áreas de interesse;
-* Objetivo;
-* Sobre o portfólio.
-
-## Página Projetos
-
-A página **Projetos** foi criada para futuramente exibir os principais trabalhos desenvolvidos pelo aluno.
-
-Ela servirá como uma área para listar projetos acadêmicos, pessoais ou profissionais, mostrando informações como nome do projeto, descrição, tecnologias utilizadas e possíveis links para repositórios ou demonstrações.
-
-Nesta etapa, a página foi criada como componente, ficando preparada para receber conteúdo nas próximas aulas.
-
-## Página Contato
-
-A página **Contato** foi criada para futuramente reunir formas de comunicação com o desenvolvedor.
-
-Ela poderá conter informações como:
-
-* E-mail;
-* GitHub;
-* LinkedIn;
-* Outras redes profissionais;
-* Formulário de contato.
-
-Nesta aula, o principal objetivo foi criar a estrutura do componente e deixá-lo conectado à navegação da aplicação.
-
-## Navegação entre páginas
-
-Foi configurada a navegação entre as páginas utilizando o sistema de rotas do Angular.
-
-As rotas permitem que o usuário acesse diferentes páginas do portfólio sem que o site seja completamente recarregado.
-
-Foram configuradas rotas para:
-
-```ts
-{ path: '', component: Home }
-{ path: 'sobre', component: Sobre }
-{ path: 'projetos', component: Projetos }
-{ path: 'contato', component: Contato }
-```
-
-A rota vazia (`''`) representa a página inicial do site, ou seja, a Home.
-
-## Uso do routerLink
-
-Para navegar entre as páginas, foi utilizado o `routerLink`.
-
-O `routerLink` funciona de forma parecida com o `href` do HTML, mas com uma diferença importante: ele troca o conteúdo exibido na aplicação sem recarregar a página inteira.
-
-Exemplo:
-
-```html
-<a mat-button routerLink="/">Início</a>
-<a mat-button routerLink="/sobre">Sobre</a>
-<a mat-button routerLink="/projetos">Projetos</a>
-<a mat-button routerLink="/contato">Contato</a>
-```
-
-Isso torna a aplicação mais fluida e mais parecida com um sistema moderno de página única, conhecido como SPA, ou Single Page Application.
-
-## Uso do router-outlet
-
-Também foi utilizado o `router-outlet`, que é o local onde o Angular renderiza o componente correspondente à rota acessada.
-
-Exemplo:
-
-```html
-<router-outlet></router-outlet>
-```
-
-Quando o usuário clica em “Sobre”, por exemplo, o Angular carrega o componente Sobre dentro do `router-outlet`.
-
-## Angular Material
-
-O projeto utiliza Angular Material para melhorar a aparência da interface.
-
-Durante a aula, foram utilizados componentes visuais como:
-
-* `mat-toolbar`, para a barra de navegação;
-* `mat-button`, para os botões/links do menu;
-* `mat-card`, para os cartões de conteúdo.
-
-Esses componentes ajudam a deixar o portfólio com visual mais moderno, organizado e padronizado.
-
-## Layout da aplicação
-
-O layout principal do projeto foi organizado com uma barra superior de navegação e uma área central para exibição do conteúdo.
-
-A estrutura geral da aplicação segue a ideia:
-
-```html
-<mat-toolbar color="primary">
-  <span>Meu Portfólio</span>
-
-  <span class="spacer"></span>
-
-  <a mat-button routerLink="/">Início</a>
-  <a mat-button routerLink="/sobre">Sobre</a>
-  <a mat-button routerLink="/projetos">Projetos</a>
-  <a mat-button routerLink="/contato">Contato</a>
-</mat-toolbar>
-
-<main class="container">
-  <router-outlet></router-outlet>
-</main>
-```
-
-A barra de navegação permite acessar as páginas principais do portfólio, enquanto o `router-outlet` exibe o conteúdo de cada página.
-
-## Organização do projeto
-
-A estrutura principal do projeto ficou organizada em componentes dentro da pasta `src/app`.
-
-Exemplo de organização:
-
-```text
-src/
-└── app/
-    ├── home/
-    │   ├── home.html
-    │   ├── home.css
-    │   ├── home.ts
-    │   └── home.spec.ts
-    │
-    ├── sobre/
-    │   ├── sobre.html
-    │   ├── sobre.css
-    │   ├── sobre.ts
-    │   └── sobre.spec.ts
-    │
-    ├── projetos/
-    │   ├── projetos.html
-    │   ├── projetos.css
-    │   ├── projetos.ts
-    │   └── projetos.spec.ts
-    │
-    ├── contato/
-    │   ├── contato.html
-    │   ├── contato.css
-    │   ├── contato.ts
-    │   └── contato.spec.ts
-    │
-    ├── app.html
-    ├── app.css
-    ├── app.ts
-    └── app.routes.ts
-```
-
-Essa organização facilita a manutenção e evolução do projeto, pois cada página possui seus próprios arquivos.
-
-## Como executar o projeto
-
-Para executar o projeto localmente, primeiro é necessário instalar as dependências:
+Em outro terminal, inicie o Angular:
 
 ```bash
+cd port_angular
 npm install
+npm start
 ```
 
-Depois, basta iniciar o servidor de desenvolvimento:
+O frontend fica em `http://localhost:4200` e a API em `http://localhost:8000`. No Codespaces, a porta 8000 precisa estar como **Public**. Quando o endereço público mudar, atualize somente as propriedades `apiUrl` em:
 
-```bash
-ng serve
-```
+- `port_angular/src/app/projeto.service.ts:26`;
+- `port_angular/src/app/tecnologia.service.ts:16`;
+- `port_angular/src/app/contato.service.ts:20`.
 
-Em seguida, acesse no navegador:
+## API
 
-```text
-http://localhost:4200
-```
+| Método | Endereço | Função |
+| --- | --- | --- |
+| GET | `/api/projetos.php` | Lista somente projetos publicados |
+| GET | `/api/projetos.php?todos=1` | Lista projetos para a gestão, inclusive rascunhos |
+| POST | `/api/projetos.php` | Cria um projeto |
+| PUT | `/api/projetos.php?id=N` | Atualiza um projeto |
+| DELETE | `/api/projetos.php?id=N` | Exclui um projeto |
+| GET | `/api/tecnologias.php` | Lista tecnologias ativas |
+| POST | `/api/contato.php` | Valida e grava um contato |
 
-Caso esteja utilizando GitHub Codespaces, basta abrir a aba de portas e acessar a porta `4200`.
+## Funcionalidades atuais
 
-## Comandos utilizados na aula
-
-Durante o desenvolvimento da aula, foram utilizados comandos como:
-
-```bash
-cd portfolio-angular
-ng serve
-```
-
-Para gerar os componentes:
-
-```bash
-ng generate component home
-ng generate component sobre
-ng generate component projetos
-ng generate component contato
-```
-
-Para salvar as alterações no GitHub:
-
-```bash
-git add .
-git commit -m "Aula16: Cria componentes, navegacao com Material e rotas do Portfolio"
-git push
-```
-
-## Aprendizados da aula
-
-Com essa aula, foi possível praticar os seguintes conceitos:
-
-* Criação de componentes Angular;
-* Separação da aplicação em páginas;
-* Organização da estrutura do projeto;
-* Utilização de rotas;
-* Navegação entre telas com `routerLink`;
-* Exibição dinâmica de componentes com `router-outlet`;
-* Uso de Angular Material;
-* Criação de barra de navegação;
-* Uso de cartões com `mat-card`;
-* Versionamento do projeto no GitHub;
-* Construção da estrutura inicial de um portfólio profissional.
-
-## Status do projeto
-
-O projeto está em desenvolvimento.
-
-A estrutura inicial já foi criada, contendo as páginas principais e a navegação entre elas. Nas próximas etapas, o portfólio poderá receber mais conteúdo, como projetos reais, habilidades técnicas, links externos, informações de contato e melhorias visuais.
-
-## Possíveis melhorias futuras
-
-Algumas melhorias que podem ser adicionadas futuramente:
-
-* Adicionar lista de habilidades com ícones;
-* Criar cards para projetos;
-* Inserir links para GitHub e LinkedIn;
-* Criar formulário de contato;
-* Melhorar o design responsivo;
-* Adicionar animações;
-* Criar rodapé;
-* Personalizar cores e identidade visual;
-* Adicionar imagens ou avatar;
-* Publicar o projeto online.
-
-## Autor
-
-**Rafael Freire**
-
-Aluno do curso Técnico em Informática do IFPR CRPG.
-
-Projeto desenvolvido para a disciplina de Desenvolvimento Web III.
+- páginas Início, Sobre, Projetos, Catálogo, Contato e Gestão;
+- projetos e tecnologias carregados da API PHP;
+- formulário de contato reativo com validação no Angular e no PHP;
+- CRUD de projetos na rota `/gestao`;
+- seleção entre rascunho e publicado;
+- mensagens visíveis de carregamento, erro, sucesso e lista vazia;
+- navegação e formulários adaptados para telas pequenas e uso por teclado.
 
 ## Aula 17 / Atividade 13
 
-Nesta etapa, as telas deixaram os dados fixos e passaram a consumir a API PHP por meio de services Angular. A URL de cada endpoint está em uma única propriedade do service correspondente.
+Projetos e Catálogo usam services injetáveis e recebem os dados reais da API. Nenhum componente conhece ou usa diretamente a URL dos endpoints.
 
 ### 🎯 Autoavaliação — Atividade 13
 
 **Conceito pretendido: A.**
 
-- O `HttpClient` foi habilitado em `port_angular/src/app/app.config.ts:2-11`.
-- `port_angular/src/app/projeto.service.ts:14-21` faz o GET de projetos, enquanto `port_angular/src/app/projetos/projetos.ts:12-30` controla carregamento, sucesso e erro.
-- `port_angular/src/app/projetos/projetos.html:3-32` usa `@if`, `@for`, estado vazio e o botão **Ver no GitHub** com `[href]`.
-- O Catálogo foi incluído na rota e no menu. `port_angular/src/app/tecnologia.service.ts:13-20` faz o GET e `port_angular/src/app/catalogo/catalogo.ts:11-29` trata os estados da tela.
-- `port_angular/src/app/catalogo/catalogo.html:3-30` também apresenta carregamento, erro, lista vazia e cards gerados com `@for`.
-
-O extra do conceito A é o estado vazio nas duas telas: “Nenhum projeto publicado ainda.” e “Nenhuma tecnologia cadastrada ainda.”
+- O `HttpClient` está habilitado em `port_angular/src/app/app.config.ts:2-11`.
+- `port_angular/src/app/projeto.service.ts:23-33` concentra a URL e o GET público; `port_angular/src/app/projetos/projetos.ts:12-30` usa `OnInit`, `inject` e `subscribe` com `next/error`.
+- `port_angular/src/app/projetos/projetos.html:3-34` tem carregamento, erro, vazio, `@for`, cards e o botão **Ver no GitHub** com `[href]`, `target` e `rel`.
+- `port_angular/src/app/tecnologia.service.ts:13-20`, `port_angular/src/app/catalogo/catalogo.ts:11-29` e `port_angular/src/app/catalogo/catalogo.html:3-30` repetem o mesmo padrão no Catálogo.
+- O extra do conceito A é o estado vazio nas duas telas: “Nenhum projeto publicado ainda.” e “Nenhuma tecnologia cadastrada ainda.”
 
 ## Aula 18 / Atividade 14
 
-O contato agora usa formulário reativo no Angular e envia JSON para o PHP. A validação existe nos dois lados: o navegador ajuda o usuário antes do envio e a API confere novamente antes de gravar.
+O formulário envia JSON ao PHP. A validação do Angular melhora o uso da tela, mas a API valida tudo novamente antes de inserir no banco.
+
+### Testes do contato com curl
+
+Com PHP e MariaDB em execução, estes comandos comprovam 201 para um contato válido e 400 para um e-mail inválido:
+
+```bash
+curl -i -X POST http://localhost:8000/api/contato.php \
+  -H 'Content-Type: application/json' \
+  -d '{"nome":"Rafael","email":"rafael@example.com","mensagem":"Mensagem valida para teste"}'
+
+curl -i -X POST http://localhost:8000/api/contato.php \
+  -H 'Content-Type: application/json' \
+  -d '{"nome":"Rafael","email":"email-invalido","mensagem":"Mensagem valida para teste"}'
+```
+
+Esses curls não foram executados nesta implementação porque o ambiente não possui PHP nem MariaDB.
 
 ### 🎯 Autoavaliação — Atividade 14
 
 **Conceito pretendido: A.**
 
-- `port_angular/src/app/contato/contato.ts:20-22` configura `required`, tamanho mínimo e e-mail; `port_angular/src/app/contato/contato.html:29-69` usa `formGroup`, `touched`, mensagens em texto e bloqueio durante envio.
-- `port_angular/src/app/contato.service.ts:19-24` mantém a URL fora do componente e executa o `http.post` tipado.
-- `port_angular/src/app/contato/contato.ts:30-55` impede envio inválido, usa `subscribe`, limpa o formulário no sucesso e reabilita o botão no erro.
-- `api/contato.php:21-46` lê `php://input`, limpa e valida os campos, devolvendo 400 com a lista `erros` quando necessário.
-- `api/contato.php:49-61` grava com `prepare/execute` e responde 201; a tabela está em `sql/setup.sql:32-38`.
-- Para o conceito A, `port_angular/src/app/contato/contato.ts:47-53` usa `HttpErrorResponse` e mostra os erros 400 da API. Os labels estão ligados por `for/id`, os erros têm texto e o primeiro campo inválido recebe foco.
+- `sql/setup.sql:32-38` contém a tabela `contatos` pedida.
+- `api/contato.php:21-46` lê `php://input`, usa `trim`, valida os campos e responde 400 com `erros`; `api/contato.php:49-60` grava com `prepare/execute` e responde 201.
+- `port_angular/src/app/contato.service.ts:17-24` tipa a resposta e executa o `http.post` fora do componente.
+- `port_angular/src/app/contato/contato.ts:19-56` configura os `Validators`, impede POST inválido e trata sucesso, `reset()`, erro de rede e erros 400 com `HttpErrorResponse`.
+- `port_angular/src/app/contato/contato.html:29-82` liga os labels por `for/id`, usa `touched`, mostra cada erro em texto e desabilita o botão quando o formulário está inválido ou enviando.
+- `port_angular/src/app/contato/contato.ts:59-63` foca o primeiro campo inválido; o CSS também mantém foco e campo inválido visíveis.
 
-Os testes HTTP de 201 e 400 dependem de PHP e MariaDB em execução. Eles não estavam disponíveis no ambiente usado para esta implementação, então não foram registrados como executados.
+## Aula 19 / Atividade 15
+
+### Um endereço, quatro ações
+
+O arquivo `api/projetos.php` consegue listar, criar, alterar e apagar no mesmo endereço porque o servidor verifica o método, ou verbo, da requisição. Depois dessa verificação, ele executa o trecho correspondente a GET, POST, PUT ou DELETE.
+
+### Testes com curl
+
+Os comandos abaixo ficam como roteiro reproduzível. Troque `ID` pelo número criado no POST.
+
+```bash
+API=http://localhost:8000/api/projetos.php
+
+curl -i "$API"
+curl -i -X OPTIONS "$API"
+
+curl -i -X POST "$API" \
+  -H 'Content-Type: application/json' \
+  -d '{"nome":"Projeto curl","descricao":"Teste","tecnologias":"Angular, PHP","link_github":"","ano":2026,"status":"rascunho"}'
+
+curl -i -X POST "$API" \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+
+curl -i -X PUT "$API?id=ID" \
+  -H 'Content-Type: application/json' \
+  -d '{"nome":"Projeto alterado","descricao":"Teste","tecnologias":"Angular, PHP","link_github":"","ano":2026,"status":"publicado"}'
+
+curl -i -X DELETE "$API?id=ID"
+curl -i -X DELETE "$API?id=ID"
+curl -i -X PATCH "$API"
+```
+
+Resultados definidos pelo endpoint:
+
+| Caso | Primeira linha / conteúdo esperado |
+| --- | --- |
+| GET | `HTTP/1.1 200 OK` + lista JSON |
+| POST válido | `HTTP/1.1 201 Created` + `{"id":N}` |
+| POST sem nome | `HTTP/1.1 400 Bad Request` + `{"erro":"Informe pelo menos o nome do projeto"}` |
+| PUT válido | `HTTP/1.1 200 OK` + `{"mensagem":"Projeto atualizado"}` |
+| DELETE existente | `HTTP/1.1 204 No Content`, sem corpo |
+| DELETE repetido | `HTTP/1.1 404 Not Found` + `{"erro":"Projeto nao encontrado"}` |
+| PATCH | `HTTP/1.1 405 Method Not Allowed` + `{"erro":"Metodo nao permitido"}` |
+| OPTIONS | `HTTP/1.1 204 No Content` e `Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS` |
+
+O contrato de escrita testável é: **POST** em `/api/projetos.php`, resposta **201 Created** e `Content-Type: application/json; charset=utf-8`. Criar retorna 201 porque um recurso novo foi criado; apagar retorna 204 porque a exclusão terminou e não há conteúdo para devolver.
+
+PHP e MariaDB não estavam instalados neste ambiente. Por isso, a tabela acima descreve as respostas implementadas no código, mas não é apresentada como uma execução real dos curls.
+
+### O que a aba Network deve mostrar
+
+Com a API ligada, adicionar deve mostrar POST/201, salvar uma edição PUT/200 e excluir DELETE/204. A aba Network não pôde ser observada aqui porque não havia backend PHP nem navegador conectado; o build, os testes de componentes e as rotas do servidor Angular foram verificados separadamente.
+
+### Clique duplo e estado salvando
+
+1. Dois cliques rápidos podem mandar dois POSTs e criar dois registros iguais.
+2. Isso acontece porque cada POST pede a criação de um novo recurso e não é automaticamente idempotente.
+3. O estado `salvando` bloqueia o botão até a resposta chegar e evita o segundo envio.
+
+### Estratégias de atualização
+
+Depois de adicionar ou editar, a tela chama `carregar()` e busca a lista novamente. Essa estratégia faz uma ida extra à rede, mas recebe o estado atual do banco. Depois de excluir, a tela usa `filter` no array local; isso economiza uma requisição e remove a linha imediatamente.
+
+A atualização somente local pode ficar desatualizada se outra aba, outro usuário ou um UPDATE externo mudar o banco. Buscar novamente custa mais uma requisição, mas reduz essa diferença.
+
+### Preflight
+
+Antes de um DELETE entre origens diferentes, o navegador pode enviar OPTIONS para perguntar ao servidor se aquele método e aqueles headers são permitidos. `api/projetos.php:3-12` responde 204 e anuncia todos os métodos necessários.
+
+### Objeção sobre DELETE via GET
+
+Um link GET não deve apagar porque GET é usado para leitura e pode ser aberto, pré-carregado ou repetido sem intenção de excluir. O botão chama DELETE e ainda pede confirmação com o nome. A evidência é `curl -i -X DELETE "$API?id=ID"`: o verbo deixa explícita a operação e a API devolve 204.
+
+### Polimento pesquisado
+
+O único polimento pesquisado foi o estado próprio de lista vazia: “Você ainda não cadastrou nenhum projeto.”, em `port_angular/src/app/gestao/gestao.html:88-90`. A referência foi a orientação oficial do [Material Design sobre empty states](https://m1.material.io/patterns/empty-states.html), que recomenda não deixar uma lista vazia sem explicação.
+
+### Diagnóstico técnico desta implementação
+
+- **Problema encontrado:** `api/tecnologias.php` selecionava colunas que pertenciam a projetos, por isso o Catálogo não receberia a interface esperada.
+- **Correção feita:** a consulta agora retorna `id`, `nome`, `categoria`, `descricao` e `ano_criacao`. Também foram corrigidos o teste antigo do título e o fechamento do HTML da Home.
+- **Algo mantido sem alteração:** a rota `/gestao` continua sem login, guard ou JWT porque a proteção dessa área pertence ao conteúdo posterior, conforme o enunciado.
+
+### 🎯 Autoavaliação — Atividade 15
+
+**Conceito pretendido: A.**
+
+- **R1 — API CRUD:** `api/projetos.php:3-18` trata CORS, OPTIONS e 405; `api/projetos.php:21-35` lista; `api/projetos.php:38-74` cria; `api/projetos.php:77-133` atualiza; `api/projetos.php:136-155` exclui. Toda escrita usa `prepare/execute` e os retornos incluem 201, 200, 204, 400 e 404.
+- **R2 — Service e gestão:** `port_angular/src/app/projeto.service.ts:23-46` concentra GET/POST/PUT/DELETE. `port_angular/src/app/gestao/gestao.ts:41-91` carrega e salva sem HTTP direto no componente; `port_angular/src/app/gestao/gestao.ts:94-146` edita, confirma e exclui.
+- **R3 — Regras da tela:** `port_angular/src/app/gestao/gestao.ts:20-27` valida Nome, Ano e Status; `port_angular/src/app/gestao/gestao.ts:80-90` limpa, volta ao modo adicionar e recarrega; `port_angular/src/app/gestao/gestao.ts:123-145` confirma pelo nome e remove com `filter`.
+- **R4 — Status e erros:** o GET normal filtra publicados e `?todos=1` lista a gestão em `api/projetos.php:24-31`; o formulário escolhe rascunho/publicado e a lista mostra o status em texto em `port_angular/src/app/gestao/gestao.html:48-52` e `port_angular/src/app/gestao/gestao.html:92-110`. Falhas aparecem em português na tela.
+- **R5 — acabamento:** a meta viewport está em `port_angular/src/index.html:7`; a navegação responsiva está em `port_angular/src/app/app.css:1-44`; foco visível, lista contida e quebra de texto estão em `port_angular/src/app/gestao/gestao.css:28-63`; carregamento e lista vazia estão em `port_angular/src/app/gestao/gestao.html:84-90`.
+
+## Verificações realizadas nesta implementação
+
+- `npm install`: concluído;
+- `npm run build`: concluído sem erros de TypeScript ou template;
+- `npm test -- --watch=false`: 6 arquivos e 10 testes aprovados;
+- servidor Angular: `/`, `/projetos`, `/catalogo`, `/contato` e `/gestao` responderam HTTP 200;
+- `php -l` e curls da API: não executados, pois PHP e MariaDB não estão instalados;
+- inspeção visual automatizada: não executada, pois não havia navegador conectado ao ambiente.
+
+## Histórico — Aula 16
+
+O projeto começou como a estrutura visual do portfólio. Na Aula 16 foram criados os componentes Home, Sobre, Projetos e Contato, as rotas com `routerLink`/`router-outlet` e a barra de navegação com Angular Material. As Aulas 17, 18 e 19 evoluíram essa base sem reescrever o projeto.
+
+## Autor
+
+**Rafael Freire** — aluno do curso Técnico em Informática do IFPR CRPG.

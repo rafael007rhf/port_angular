@@ -1,0 +1,77 @@
+:host {
+  display: block;
+  max-width: 100%;
+}
+
+.form-card {
+  margin-bottom: 24px;
+}
+
+.form-gestao {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.form-gestao input,
+.form-gestao textarea,
+.form-gestao select {
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: 4px;
+  box-sizing: border-box;
+  font: inherit;
+  max-width: 100%;
+  padding: 10px;
+  width: 100%;
+}
+
+.form-gestao input:focus-visible,
+.form-gestao textarea:focus-visible,
+.form-gestao select:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+}
+
+.form-gestao .ng-invalid.ng-touched {
+  border-color: var(--mat-sys-error);
+}
+
+.acoes-formulario,
+.acoes-projeto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lista-projetos {
+  display: grid;
+  gap: 12px;
+  max-width: 100%;
+}
+
+.linha-projeto {
+  align-items: center;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 12px;
+}
+
+.linha-projeto span {
+  display: block;
+}
+
+.erro-campo,
+.mensagem-erro {
+  color: var(--mat-sys-error);
+}
+
+.mensagem-sucesso {
+  color: var(--mat-sys-primary);
+}

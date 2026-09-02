@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
+import { ProjetoService } from '../projeto.service';
 import { Projetos } from './projetos';
 
 describe('Projetos', () => {
@@ -9,6 +11,12 @@ describe('Projetos', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Projetos],
+      providers: [
+        {
+          provide: ProjetoService,
+          useValue: { listar: () => of([]) },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Projetos);

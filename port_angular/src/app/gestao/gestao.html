@@ -1,0 +1,117 @@
+<h1>Gestão de projetos</h1>
+
+<mat-card class="form-card">
+  <mat-card-header>
+    <mat-card-title>
+      {{ editandoId === null ? 'Adicionar projeto' : 'Editar projeto' }}
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form class="form-gestao" [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+      <label for="nome-gestao">Nome</label>
+      <input
+        id="nome-gestao"
+        type="text"
+        formControlName="nome"
+        required
+        aria-describedby="erro-nome-gestao"
+        [attr.aria-invalid]="form.controls.nome.invalid && form.controls.nome.touched"
+      />
+      @if (form.controls.nome.invalid && form.controls.nome.touched) {
+        <p id="erro-nome-gestao" class="erro-campo">Informe um nome (mín. 3 letras).</p>
+      }
+
+      <label for="descricao-gestao">Descrição</label>
+      <textarea id="descricao-gestao" formControlName="descricao" rows="4"></textarea>
+
+      <label for="tecnologias-gestao">Tecnologias</label>
+      <input id="tecnologias-gestao" type="text" formControlName="tecnologias" />
+
+      <label for="link-github-gestao">Link GitHub</label>
+      <input id="link-github-gestao" type="url" formControlName="link_github" />
+
+      <label for="ano-gestao">Ano</label>
+      <input
+        id="ano-gestao"
+        type="number"
+        formControlName="ano"
+        min="1900"
+        required
+        aria-describedby="erro-ano-gestao"
+        [attr.aria-invalid]="form.controls.ano.invalid && form.controls.ano.touched"
+      />
+      @if (form.controls.ano.invalid && form.controls.ano.touched) {
+        <p id="erro-ano-gestao" class="erro-campo">Informe um ano válido.</p>
+      }
+
+      <label for="status-gestao">Status</label>
+      <select id="status-gestao" formControlName="status" required>
+        <option value="rascunho">Rascunho</option>
+        <option value="publicado">Publicado</option>
+      </select>
+
+      <div class="acoes-formulario">
+        <button mat-flat-button type="submit" [disabled]="salvando">
+          @if (salvando) {
+            Salvando...
+          } @else if (editandoId === null) {
+            Adicionar projeto
+          } @else {
+            Salvar alteração
+          }
+        </button>
+
+        @if (editandoId !== null) {
+          <button mat-button type="button" (click)="cancelarEdicao()">Cancelar edição</button>
+        }
+      </div>
+    </form>
+
+    @if (sucesso) {
+      <p class="mensagem-sucesso" role="status">{{ sucesso }}</p>
+    }
+
+    @if (erro) {
+      <p class="mensagem-erro" role="alert">{{ erro }}</p>
+    }
+  </mat-card-content>
+</mat-card>
+
+<section aria-labelledby="titulo-projetos-cadastrados">
+  <h2 id="titulo-projetos-cadastrados">Projetos cadastrados</h2>
+
+  @if (carregando) {
+    <p>Carregando projetos...</p>
+  }
+
+  @if (!carregando && !erro && projetos.length === 0) {
+    <p>Você ainda não cadastrou nenhum projeto.</p>
+  }
+
+  @if (!carregando && projetos.length > 0) {
+    <div class="lista-projetos">
+      @for (projeto of projetos; track projeto.id) {
+        <article class="linha-projeto">
+          <div>
+            <strong>{{ projeto.nome }}</strong>
+            <span>Status: {{ projeto.status }}</span>
+            <span>Ano: {{ projeto.ano }}</span>
+          </div>
+
+          <div class="acoes-projeto">
+            <button mat-button type="button" (click)="editar(projeto)">Editar</button>
+            <button
+              mat-button
+              type="button"
+              (click)="excluir(projeto)"
+              [disabled]="excluindoId !== null"
+            >
+              {{ excluindoId === projeto.id ? 'Excluindo...' : 'Excluir' }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>
