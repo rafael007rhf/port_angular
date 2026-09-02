@@ -378,3 +378,20 @@ Nesta etapa, as telas deixaram os dados fixos e passaram a consumir a API PHP po
 - `port_angular/src/app/catalogo/catalogo.html:3-30` também apresenta carregamento, erro, lista vazia e cards gerados com `@for`.
 
 O extra do conceito A é o estado vazio nas duas telas: “Nenhum projeto publicado ainda.” e “Nenhuma tecnologia cadastrada ainda.”
+
+## Aula 18 / Atividade 14
+
+O contato agora usa formulário reativo no Angular e envia JSON para o PHP. A validação existe nos dois lados: o navegador ajuda o usuário antes do envio e a API confere novamente antes de gravar.
+
+### 🎯 Autoavaliação — Atividade 14
+
+**Conceito pretendido: A.**
+
+- `port_angular/src/app/contato/contato.ts:20-22` configura `required`, tamanho mínimo e e-mail; `port_angular/src/app/contato/contato.html:29-69` usa `formGroup`, `touched`, mensagens em texto e bloqueio durante envio.
+- `port_angular/src/app/contato.service.ts:19-24` mantém a URL fora do componente e executa o `http.post` tipado.
+- `port_angular/src/app/contato/contato.ts:30-55` impede envio inválido, usa `subscribe`, limpa o formulário no sucesso e reabilita o botão no erro.
+- `api/contato.php:21-46` lê `php://input`, limpa e valida os campos, devolvendo 400 com a lista `erros` quando necessário.
+- `api/contato.php:49-61` grava com `prepare/execute` e responde 201; a tabela está em `sql/setup.sql:32-38`.
+- Para o conceito A, `port_angular/src/app/contato/contato.ts:47-53` usa `HttpErrorResponse` e mostra os erros 400 da API. Os labels estão ligados por `for/id`, os erros têm texto e o primeiro campo inválido recebe foco.
+
+Os testes HTTP de 201 e 400 dependem de PHP e MariaDB em execução. Eles não estavam disponíveis no ambiente usado para esta implementação, então não foram registrados como executados.

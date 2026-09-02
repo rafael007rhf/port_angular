@@ -29,6 +29,14 @@ CREATE TABLE tecnologias (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE contatos (
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    nome      VARCHAR(120) NOT NULL,
+    email     VARCHAR(180) NOT NULL,
+    mensagem  TEXT NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SHOW TABLES;
 USE dwii_db;
 
