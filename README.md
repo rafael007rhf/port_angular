@@ -1,52 +1,449 @@
-# Port Angular
+# Portfólio de Rafael Freire
 
-Portfólio de Rafael Freire desenvolvido na disciplina de Desenvolvimento Web II. O frontend continua em Angular com Angular Material e o backend continua em PHP com PDO e MariaDB.
+Projeto de Desenvolvimento Web II — IFPR CRPG. A API atual usa Node.js, Express e MariaDB; o Angular consome essa API e permite fazer login para gerenciar projetos. A pasta `portfolio-react/` inicia a nova interface da Aula 25, com dados locais e componentes reutilizáveis.
 
-## Como executar
+## Como rodar do zero — Aulas 21 a 24
 
-O arquivo `sql/setup.sql` prepara o banco `dwii_db`, as tabelas e os dados iniciais. Ele contém comandos de criação, portanto deve ser usado em um banco novo; não execute o arquivo inteiro sobre um banco já preenchido sem antes conferir os dados.
-
-Na raiz do repositório, inicie a API:
+Requisitos: Node.js **22.12 ou superior** (testado em 24.22.1), npm e MariaDB. Execute os primeiros comandos na raiz do repositório:
 
 ```bash
-/usr/bin/php -S 0.0.0.0:8000
+sudo service mariadb start
+sudo mariadb < sql/setup.sql
+sudo mariadb < sql/usuarios.sql
+cd api-node
+npm ci
 ```
 
-Em outro terminal, inicie o Angular:
+`setup.sql` cria o banco `dwii_db`, as tabelas, cinco projetos publicados, um rascunho e seis tecnologias. **Use-o apenas em um banco novo**: não é uma migração para um banco já preenchido. Se o banco das aulas anteriores já existe, execute apenas `usuarios.sql`, que cria a tabela de login sem apagar dados.
+
+Crie o `.env` local a partir do exemplo, gerando um segredo aleatório sem imprimi-lo:
 
 ```bash
-cd port_angular
-npm install
+node -e "const fs=require('node:fs');const c=require('node:crypto');fs.writeFileSync('.env',fs.readFileSync('.env.example','utf8').replace('JWT_SECRET=','JWT_SECRET='+c.randomBytes(48).toString('hex')))"
+```
+
+Confira `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` e `DB_NAME` em `.env`. Os padrões correspondem ao banco didático de `setup.sql`. O `.env` é ignorado pelo Git; o servidor recusa iniciar sem um segredo de pelo menos 32 caracteres.
+
+Crie a conta do dono com email próprio e **uma senha escolhida localmente**, sem registrá-la no histórico do terminal. No Bash:
+
+```bash
+read -rsp 'Escolha a senha do dono (mínimo de 8 caracteres): ' USUARIO_SENHA
+printf '\n'
+export USUARIO_SENHA
+npm run criar-usuario -- rafa.henrique.freire@gmail.com
+unset USUARIO_SENHA
 npm start
 ```
 
-O frontend fica em `http://localhost:4200` e a API em `http://localhost:8000`. No Codespaces, a porta 8000 precisa estar como **Public**. Quando o endereço público mudar, atualize somente as propriedades `apiUrl` em:
+O script grava `bcrypt.hash(senha, 10)` na coluna `senha_hash`, nunca a senha. Ele não sobrescreve usuários existentes. A API atende em **http://localhost:3000**. O email acima é o do autor nos commits; pode ser substituído por outro email próprio ao criar a conta. Nenhuma senha real é fornecida ou versionada.
 
-- `port_angular/src/app/projeto.service.ts:26`;
-- `port_angular/src/app/tecnologia.service.ts:16`;
-- `port_angular/src/app/contato.service.ts:20`.
+Em outro terminal, na raiz do repositório:
 
-## API
+```bash
+cd port_angular
+npm ci
+npm start
+```
 
-| Método | Endereço | Função |
-| --- | --- | --- |
-| GET | `/api/projetos.php` | Lista somente projetos publicados |
-| GET | `/api/projetos.php?todos=1` | Lista projetos para a gestão, inclusive rascunhos |
-| POST | `/api/projetos.php` | Cria um projeto |
-| PUT | `/api/projetos.php?id=N` | Atualiza um projeto |
-| DELETE | `/api/projetos.php?id=N` | Exclui um projeto |
-| GET | `/api/tecnologias.php` | Lista tecnologias ativas |
-| POST | `/api/contato.php` | Valida e grava um contato |
+O Angular abre em **http://localhost:4200**. Projetos, Catálogo e Contato são públicos. Em `/gestao`, entre com a conta criada: a tela envia `Authorization: Bearer ...`, lista rascunhos, cria, edita e exclui. O token fica em `sessionStorage`; sair o remove, e um 401 devolve a tela ao login. O formulário de contato também usa o Node, preservando o contrato anterior.
 
-## Funcionalidades atuais
+### No Codespaces
 
-- páginas Início, Sobre, Projetos, Catálogo, Contato e Gestão;
-- projetos e tecnologias carregados da API PHP;
-- formulário de contato reativo com validação no Angular e no PHP;
-- CRUD de projetos na rota `/gestao`;
-- seleção entre rascunho e publicado;
-- mensagens visíveis de carregamento, erro, sucesso e lista vazia;
-- navegação e formulários adaptados para telas pequenas e uso por teclado.
+Encaminhe a porta **3000 como Public** e substitua a origem em `port_angular/src/app/api.config.ts` pela URL HTTPS encaminhada, mantendo `/api` no final. Encaminhe também 4200 para o Angular ou 5173 para o React. Os arquivos PHP ficam como histórico das aulas anteriores; não é necessário iniciar o servidor PHP para a versão atual.
+
+## Aula 21 — O servidor como programa
+
+`api-node/server.js` define o Express e inicia a porta 3000 com `app.listen`. `cors()` permite que o navegador leia a API a partir de outra origem. O GET de projetos mantém o contrato de seis campos: `id`, `nome`, `descricao`, `tecnologias`, `link_github` e `ano`. A troca de linguagem do servidor não exige trocar os componentes que consomem esse contrato.
+
+## Aula 22 — Pool, Promise e await
+
+`api-node/db.js` cria o pool de conexões com `mysql2/promise`. As rotas aguardam `pool.execute(...)`; SELECT devolve linhas e as escritas devolvem `insertId` ou `affectedRows`. As consultas com valores usam `?`, incluindo filtros de status. `try/catch` transforma falhas do banco em 500 JSON sem expor consulta, senha ou detalhes internos.
+
+GET `/api/projetos` e `/api/projetos/:id` só mostram publicados. O GET de um rascunho ou de um id inexistente responde 404. GET `/api/tecnologias` só mostra tecnologias ativas.
+
+## Aula 23 — Criar, alterar e apagar
+
+`express.json()` vem antes das rotas e lê o corpo JSON. POST cria com **201** e id; PUT altera com **200**; DELETE responde **204** sem corpo. Um id inexistente responde **404**, inclusive no segundo DELETE. O nome ausente responde **400**. O catálogo tem as mesmas três escritas, exigindo também a categoria. O middleware `cors()` responde ao OPTIONS e permite o cabeçalho Authorization.
+
+O status do projeto pode ser `rascunho`, `publicado` ou `arquivado`; quando omitido em POST/PUT, o padrão é `publicado`, como no manual. PUT recebe a representação completa. Tipos, tamanhos, ano, status e links são validados no servidor. A tela de gestão continua bloqueando envios repetidos durante uma escrita.
+
+## Aula 24 — Login e tranca da API
+
+- `sql/usuarios.sql`: tabela com email único e `senha_hash`.
+- `api-node/criar-usuario.js`: cria a conta com bcrypt e SQL parametrizado.
+- `POST /api/login`: valida o corpo, consulta o usuário, usa `bcrypt.compare` e devolve um JWT assinado com HS256.
+- `autenticar`, em `api-node/server.js`: um único middleware com `jwt.verify` e `next()`. Ele protege as três escritas de projetos, as três de tecnologias e a leitura de todos os projetos.
+- `GET /api/projetos/todos`: inclui rascunhos e status, exige token e está declarado **antes de `/:id`**.
+
+### Escolhas de autenticação
+
+A validade escolhida é **30 minutos**, menor que as 2 horas do exemplo, para reduzir o período em que um token exposto poderia permitir alterações. Ao expirar, o dono precisa entrar novamente. As mensagens de 401 orientam entrar na gestão ou renovar o login.
+
+Senha errada e email inexistente recebem a mesma resposta, “Não foi possível entrar com essas credenciais.”, para não confirmar quais emails estão cadastrados. Isso iguala status e texto; não constitui uma defesa completa contra análise de tempo ou tentativas automatizadas.
+
+### Por que o SEGREDO não deve ficar no código
+
+Um `SEGREDO` fixo no `server.js` público permite que terceiros fabriquem tokens válidos.
+A Aula 29 trata essa configuração fora do código, por variáveis de ambiente.
+Esta implementação já lê `JWT_SECRET` do ambiente ou do `.env` local ignorado pelo Git.
+Em produção, o valor deve ser forte, privado e configurado no ambiente de execução.
+
+### Rotas × verbos × token
+
+| Rota | Verbo | Precisa de token? | Resposta principal |
+| --- | --- | --- | --- |
+| `/api/login` | POST | Não | 200 + token; 400; 401 |
+| `/api/projetos` | GET | Não | 200 + array de publicados |
+| `/api/projetos/todos` | GET | Sim | 200 + array incluindo rascunhos; 401 |
+| `/api/projetos/:id` | GET | Não | 200 + objeto publicado; 404 |
+| `/api/projetos` | POST | Sim | 201 + id; 400; 401 |
+| `/api/projetos/:id` | PUT | Sim | 200 + mensagem; 400; 401; 404 |
+| `/api/projetos/:id` | DELETE | Sim | 204 sem corpo; 401; 404 |
+| `/api/tecnologias` | GET | Não | 200 + array de ativas |
+| `/api/tecnologias` | POST | Sim | 201 + id; 400; 401 |
+| `/api/tecnologias/:id` | PUT | Sim | 200 + mensagem; 400; 401; 404 |
+| `/api/tecnologias/:id` | DELETE | Sim | 204 sem corpo; 401; 404 |
+| `/api/contato` | POST | Não | 201 + sucesso/id/mensagem; 400 + erros |
+| Rotas da API | OPTIONS | Não | 204 + cabeçalhos CORS |
+
+Falhas do banco respondem 500 em JSON. Rota desconhecida responde 404 JSON. O frontend usa `api.config.ts` para a origem da API; os componentes delegam HTTP aos services.
+
+### O que esta API ainda não faz
+
+1. Não limita tentativas de login nem oferece recuperação de senha, segundo fator ou bloqueio por abuso. O formulário de contato também não tem proteção antispam.
+2. Não revoga JWT antes dos 30 minutos: sair apaga o token do navegador, mas uma cópia continua válida até expirar. Não há múltiplos papéis ou isolamento de dados por usuário: contas criadas pelo script têm a mesma gestão.
+
+### Curls e respostas obtidas
+
+Execução em **26/10/2026**, em MariaDB 10.11, com os dados de `setup.sql` e uma conta descartável criada pelo script com o email do autor. Os exemplos abaixo registram requisições realmente executadas; ids dependem da sequência local. A senha foi substituída por `<senha>` e o token por `<token>`. A conta de teste não configura senha de produção para quem clonar o projeto.
+
+Antes de reproduzir, na raiz:
+
+```bash
+API=http://localhost:3000/api
+```
+
+Depois do login correto, copie o token recebido para uma variável local, sem incluí-lo em um commit:
+
+```bash
+read -rp 'Cole o token recebido: ' TOKEN
+```
+
+Use o id retornado pelo seu POST nos comandos PUT/DELETE; os números abaixo são os da execução registrada.
+
+#### GET público sem token
+
+```bash
+curl -i "$API/projetos"
+```
+
+```text
+HTTP/1.1 200 OK
+[{"id":1,"nome":"Portfolio Pessoal","descricao":"Site de portfolio responsivo com PHP, PDO e MariaDB, painel admin e login.","tecnologias":"PHP, MariaDB, CSS, Git","link_github":"https://github.com/usuario/portfolio","ano":2026},{"id":5,"nome":"API de Clima","descricao":"Microsservico que consome uma API publica e devolve a previsao em JSON.","tecnologias":"PHP, REST","link_github":"https://github.com/usuario/clima","ano":2026},{"id":2,"nome":"Sistema de Biblioteca","descricao":"CRUD de acervo e emprestimos, com busca e relatorios.","tecnologias":"PHP, MariaDB, Bootstrap","link_github":"https://github.com/usuario/biblioteca","ano":2025},{"id":3,"nome":"App de Tarefas","descricao":"Lista de tarefas com categorias, prazos e filtro por status.","tecnologias":"JavaScript, HTML, CSS","link_github":"https://github.com/usuario/tarefas","ano":2025},{"id":4,"nome":"Loja Virtual (prototipo)","descricao":"Catalogo de produtos com carrinho e checkout simulado.","tecnologias":"PHP, MariaDB, JavaScript","link_github":"https://github.com/usuario/loja","ano":2024}]
+```
+
+#### Um projeto publicado
+
+```bash
+curl -i "$API/projetos/1"
+```
+
+```text
+HTTP/1.1 200 OK
+{"id":1,"nome":"Portfolio Pessoal","descricao":"Site de portfolio responsivo com PHP, PDO e MariaDB, painel admin e login.","tecnologias":"PHP, MariaDB, CSS, Git","link_github":"https://github.com/usuario/portfolio","ano":2026}
+```
+
+#### Projeto inexistente
+
+```bash
+curl -i "$API/projetos/99999999"
+```
+
+```text
+HTTP/1.1 404 Not Found
+{"erro":"Projeto nao encontrado"}
+```
+
+#### Login correto
+
+```bash
+curl -i -X POST "$API/login" -H 'Content-Type: application/json' -d '{"email":"rafa.henrique.freire@gmail.com","senha":"<senha>"}'
+```
+
+```text
+HTTP/1.1 200 OK
+{"token":"<token>"}
+```
+
+#### Login incorreto
+
+```bash
+curl -i -X POST "$API/login" -H 'Content-Type: application/json' -d '{"email":"rafa.henrique.freire@gmail.com","senha":"incorreta"}'
+```
+
+```text
+HTTP/1.1 401 Unauthorized
+{"erro":"Não foi possível entrar com essas credenciais."}
+```
+
+#### Login sem senha
+
+```bash
+curl -i -X POST "$API/login" -H 'Content-Type: application/json' -d '{"email":"rafa.henrique.freire@gmail.com"}'
+```
+
+```text
+HTTP/1.1 400 Bad Request
+{"erro":"Informe email e senha"}
+```
+
+#### POST sem token
+
+```bash
+curl -i -X POST "$API/projetos" -H 'Content-Type: application/json' -d '{"nome":"Projeto curl","ano":2026}'
+```
+
+```text
+HTTP/1.1 401 Unauthorized
+{"erro":"Entre na gestão e envie o token Bearer para continuar."}
+```
+
+#### POST com token
+
+```bash
+curl -i -X POST "$API/projetos" -H 'Content-Type: application/json' -d '{"nome":"Projeto curl","ano":2026}' -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 201 Created
+{"id":8}
+```
+
+#### POST inválido com token
+
+```bash
+curl -i -X POST "$API/projetos" -H 'Content-Type: application/json' -d '{}' -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 400 Bad Request
+{"erro":"Informe pelo menos o nome do projeto"}
+```
+
+#### PUT com token
+
+```bash
+curl -i -X PUT "$API/projetos/8" -H 'Content-Type: application/json' -d '{"nome":"Projeto curl alterado","ano":2026,"status":"rascunho"}' -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 200 OK
+{"mensagem":"Projeto atualizado"}
+```
+
+#### PUT inexistente com token
+
+```bash
+curl -i -X PUT "$API/projetos/99999999" -H 'Content-Type: application/json' -d '{"nome":"Projeto curl","ano":2026}' -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 404 Not Found
+{"erro":"Projeto nao encontrado"}
+```
+
+#### Todos sem token
+
+```bash
+curl -i "$API/projetos/todos"
+```
+
+```text
+HTTP/1.1 401 Unauthorized
+{"erro":"Entre na gestão e envie o token Bearer para continuar."}
+```
+
+#### Todos com token, incluindo rascunhos
+
+```bash
+curl -i "$API/projetos/todos" -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 200 OK
+[{"id":1,"nome":"Portfolio Pessoal","descricao":"Site de portfolio responsivo com PHP, PDO e MariaDB, painel admin e login.","tecnologias":"PHP, MariaDB, CSS, Git","link_github":"https://github.com/usuario/portfolio","ano":2026,"status":"publicado"},{"id":5,"nome":"API de Clima","descricao":"Microsservico que consome uma API publica e devolve a previsao em JSON.","tecnologias":"PHP, REST","link_github":"https://github.com/usuario/clima","ano":2026,"status":"publicado"},{"id":6,"nome":"Jogo da Velha (em construcao)","descricao":"Jogo da velha local - ainda em desenvolvimento.","tecnologias":"JavaScript, HTML","link_github":null,"ano":2026,"status":"rascunho"},{"id":8,"nome":"Projeto curl alterado","descricao":"","tecnologias":"","link_github":"","ano":2026,"status":"rascunho"},{"id":2,"nome":"Sistema de Biblioteca","descricao":"CRUD de acervo e emprestimos, com busca e relatorios.","tecnologias":"PHP, MariaDB, Bootstrap","link_github":"https://github.com/usuario/biblioteca","ano":2025,"status":"publicado"},{"id":3,"nome":"App de Tarefas","descricao":"Lista de tarefas com categorias, prazos e filtro por status.","tecnologias":"JavaScript, HTML, CSS","link_github":"https://github.com/usuario/tarefas","ano":2025,"status":"publicado"},{"id":4,"nome":"Loja Virtual (prototipo)","descricao":"Catalogo de produtos com carrinho e checkout simulado.","tecnologias":"PHP, MariaDB, JavaScript","link_github":"https://github.com/usuario/loja","ano":2024,"status":"publicado"}]
+```
+
+#### DELETE sem token
+
+```bash
+curl -i -X DELETE "$API/projetos/8"
+```
+
+```text
+HTTP/1.1 401 Unauthorized
+{"erro":"Entre na gestão e envie o token Bearer para continuar."}
+```
+
+#### DELETE com token
+
+```bash
+curl -i -X DELETE "$API/projetos/8" -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 204 No Content
+(sem corpo)
+```
+
+#### DELETE repetido
+
+```bash
+curl -i -X DELETE "$API/projetos/8" -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 404 Not Found
+{"erro":"Projeto nao encontrado"}
+```
+
+#### Catálogo público
+
+```bash
+curl -i "$API/tecnologias"
+```
+
+```text
+HTTP/1.1 200 OK
+[{"id":4,"nome":"PHP","categoria":"Backend","descricao":"Linguagem server-side para web dinamica.","ano_criacao":1994},{"id":5,"nome":"MariaDB","categoria":"Banco de Dados","descricao":"SGBD relacional open-source.","ano_criacao":2009},{"id":6,"nome":"Git","categoria":"DevOps","descricao":"Sistema de controle de versao distribuido.","ano_criacao":2005},{"id":2,"nome":"CSS","categoria":"Frontend","descricao":"Linguagem de estilos para apresentacao visual.","ano_criacao":1996},{"id":1,"nome":"HTML","categoria":"Frontend","descricao":"Linguagem de marcacao para estrutura de paginas.","ano_criacao":1993},{"id":3,"nome":"JavaScript","categoria":"Frontend","descricao":"Linguagem de programacao para o navegador.","ano_criacao":1995}]
+```
+
+#### Tecnologia: POST com token
+
+```bash
+curl -i -X POST "$API/tecnologias" -H 'Content-Type: application/json' -d '{"nome":"Node.js","categoria":"Backend","ano_criacao":2009}' -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 201 Created
+{"id":8}
+```
+
+#### Tecnologia: PUT com token
+
+```bash
+curl -i -X PUT "$API/tecnologias/8" -H 'Content-Type: application/json' -d '{"nome":"Node.js","categoria":"Runtime","ano_criacao":2009}' -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 200 OK
+{"mensagem":"Tecnologia atualizada"}
+```
+
+#### Tecnologia: DELETE com token
+
+```bash
+curl -i -X DELETE "$API/tecnologias/8" -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 204 No Content
+(sem corpo)
+```
+
+#### Pré-voo OPTIONS
+
+```bash
+curl -i -X OPTIONS "$API/projetos/1" -H 'Origin: http://localhost:4200' -H 'Access-Control-Request-Method: DELETE' -H 'Access-Control-Request-Headers: authorization,content-type'
+```
+
+```text
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+Access-Control-Allow-Headers: authorization,content-type
+(sem corpo)
+```
+
+#### Token continua válido após reiniciar o servidor HTTP
+
+```bash
+curl -i "$API/projetos/todos" -H "Authorization: Bearer $TOKEN"
+```
+
+```text
+HTTP/1.1 200 OK
+[{"id":1,"nome":"Portfolio Pessoal","descricao":"Site de portfolio responsivo com PHP, PDO e MariaDB, painel admin e login.","tecnologias":"PHP, MariaDB, CSS, Git","link_github":"https://github.com/usuario/portfolio","ano":2026,"status":"publicado"},{"id":5,"nome":"API de Clima","descricao":"Microsservico que consome uma API publica e devolve a previsao em JSON.","tecnologias":"PHP, REST","link_github":"https://github.com/usuario/clima","ano":2026,"status":"publicado"},{"id":6,"nome":"Jogo da Velha (em construcao)","descricao":"Jogo da velha local - ainda em desenvolvimento.","tecnologias":"JavaScript, HTML","link_github":null,"ano":2026,"status":"rascunho"},{"id":2,"nome":"Sistema de Biblioteca","descricao":"CRUD de acervo e emprestimos, com busca e relatorios.","tecnologias":"PHP, MariaDB, Bootstrap","link_github":"https://github.com/usuario/biblioteca","ano":2025,"status":"publicado"},{"id":3,"nome":"App de Tarefas","descricao":"Lista de tarefas com categorias, prazos e filtro por status.","tecnologias":"JavaScript, HTML, CSS","link_github":"https://github.com/usuario/tarefas","ano":2025,"status":"publicado"},{"id":4,"nome":"Loja Virtual (prototipo)","descricao":"Catalogo de produtos com carrinho e checkout simulado.","tecnologias":"PHP, MariaDB, JavaScript","link_github":"https://github.com/usuario/loja","ano":2024,"status":"publicado"}]
+```
+
+#### Banco indisponível: 500 em JSON
+
+```bash
+curl -i "$API/projetos"
+```
+
+```text
+HTTP/1.1 500 Internal Server Error
+{"erro":"Não foi possível consultar os projetos."}
+```
+
+### Verificação da API
+
+Com o banco e a tabela de usuários preparados e o `.env` configurado, execute `npm test` em `api-node/`. O teste usa MariaDB real, cria registros temporários identificados e os remove no fim. Ele não usa mocks do banco; execute preferencialmente em um banco local de desenvolvimento.
+
+Resultado: **8 testes aprovados** (um teste principal e sete cenários): leituras públicas, tranca das seis escritas, login/token/hash, CRUD de projetos, CRUD de tecnologias, contato e CORS/JSON inválido. Os curls também comprovaram token válido após reiniciar o servidor HTTP e resposta 500 JSON com o banco desligado.
+
+### Autoavaliação — Entrega A
+
+**Conceito pretendido: A**, com as seguintes evidências no código:
+
+| Critério | Onde conferir |
+| --- | --- |
+| Leituras, CRUD, validação e consultas com parâmetros | `api-node/server.js`, rotas de projetos e tecnologias |
+| Hash e criação do dono | `sql/usuarios.sql` e `api-node/criar-usuario.js` |
+| Login e uma única implementação de autenticar | `api-node/server.js`, antes das rotas de projetos |
+| Rascunhos protegidos antes de /:id | `GET /api/projetos/todos` em `api-node/server.js` |
+| Validade, escolhas, limites, tabela e curls | Seções da Aula 24 neste README |
+| Quatro etapas de implementação | Commits `Aula 21:`, `Aula 22:`, `Aula 23:` e `Aula 24:` |
+
+Os novos commits seguem o formato `Aula NN: ...`. O histórico anterior foi preservado e contém mensagens fora desse padrão; não foi reescrito para simular um histórico diferente. A avaliação final cabe ao professor.
+
+
+## Aula 25 — O portfólio em React nasceu
+
+A pasta `portfolio-react/` é uma aplicação independente com Vite e React. Na raiz do repositório, em um terminal novo:
+
+```bash
+cd portfolio-react
+npm ci
+npm run dev
+```
+
+Abra **http://localhost:5173**. `npm run build` gera a versão de produção, e `npm run preview` permite conferi-la localmente. O React desta etapa não exige a API ligada: os três objetos de projetos são locais em `src/App.jsx`, conforme o checkpoint da Aula 25. A integração com API e as rotas são etapas seguintes.
+
+### Componentes e escolhas do checkpoint
+
+- `Cabecalho.jsx`: nome Rafael Freire e quatro links para Início, Sobre, Projetos e Contato, usando âncoras na mesma página.
+- `CardProjeto.jsx`: recebe **um objeto `projeto`** e lê nome, descrição, tecnologias, ano e link. O link “Ver no GitHub” só é renderizado quando `link_github` existe.
+- `Rodape.jsx`: autoria, IFPR e link para o perfil real no GitHub.
+- `Secao.jsx`: recebe `titulo`, `id` e `children`, reutilizando a estrutura de cada seção.
+- `App.jsx`: monta os componentes e três cards de trabalhos deste repositório: o frontend Angular, a API Node e a nova interface React. Os links apontam para o repositório real, sem projetos fictícios.
+- `index.css` e `main.jsx`: estilos globais e montagem da aplicação. Não há `App.css` nem a pasta `assets/` padrão do Vite.
+
+No JSX, `className` representa a classe CSS do elemento porque a propriedade JavaScript correspondente no DOM se chama `className`; `class` também é uma palavra reservada de JavaScript. `{projeto.nome}` avalia o texto do campo; `{{nome}}` cria um objeto, que o React não desenha como texto. Um componente recebe props; o nome passado precisa corresponder ao que ele lê.
+
+**Meta do checkpoint: A.** As evidências são a prop objeto em `CardProjeto.jsx`, `titulo/children` em `Secao.jsx`, os três cards em `App.jsx`, o rodapé próprio e o link condicional. A tela é responsiva e oferece foco visível e link para pular ao conteúdo.
+
+### Verificações dos frontends
+
+- Angular: build de produção aprovado e **10 testes aprovados em 6 arquivos**.
+- React: build de produção aprovado.
+- A verificação visual e o fluxo completo pelo navegador não foram concluídos: o Chromium deste ambiente apresentou falhas de execução. Os resultados acima se referem aos testes de integração HTTP/MariaDB, aos testes de componentes e aos builds.
+
+
+## Registro histórico — Aulas 16 a 19
+
+As seções abaixo registram a implementação PHP anterior. Seus comandos e referências descrevem aquele estágio; para executar o projeto atual, use as instruções Node no início deste README.
 
 ## Aula 17 / Atividade 13
 
@@ -187,19 +584,9 @@ O único polimento pesquisado foi o estado próprio de lista vazia: “Você ain
 - **R4 — Status e erros:** o GET normal filtra publicados e `?todos=1` lista a gestão em `api/projetos.php:24-31`; o formulário escolhe rascunho/publicado e a lista mostra o status em texto em `port_angular/src/app/gestao/gestao.html:48-52` e `port_angular/src/app/gestao/gestao.html:92-110`. Falhas aparecem em português na tela.
 - **R5 — acabamento:** a meta viewport está em `port_angular/src/index.html:7`; a navegação responsiva está em `port_angular/src/app/app.css:1-44`; foco visível, lista contida e quebra de texto estão em `port_angular/src/app/gestao/gestao.css:28-63`; carregamento e lista vazia estão em `port_angular/src/app/gestao/gestao.html:84-90`.
 
-## Verificações realizadas nesta implementação
 
-- `npm install`: concluído;
-- `npm run build`: concluído sem erros de TypeScript ou template;
-- `npm test -- --watch=false`: 6 arquivos e 10 testes aprovados;
-- servidor Angular: `/`, `/projetos`, `/catalogo`, `/contato` e `/gestao` responderam HTTP 200;
-- `php -l` e curls da API: não executados, pois PHP e MariaDB não estão instalados;
-- inspeção visual automatizada: não executada, pois não havia navegador conectado ao ambiente.
+## Autor e uso de IA
 
-## Histórico — Aula 16
+Rafael Henrique Freire — Técnico em Informática, IFPR CRPG.
 
-O projeto começou como a estrutura visual do portfólio. Na Aula 16 foram criados os componentes Home, Sobre, Projetos e Contato, as rotas com `routerLink`/`router-outlet` e a barra de navegação com Angular Material. As Aulas 17, 18 e 19 evoluíram essa base sem reescrever o projeto.
-
-## Autor
-
-**Rafael Freire** — aluno do curso Técnico em Informática do IFPR CRPG.
+Uso de IA: ChatGPT auxiliou na implementação, documentação e testes das Aulas 21 a 25 a partir dos enunciados fornecidos.

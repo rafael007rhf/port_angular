@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -12,6 +12,7 @@ import { ContatoService } from '../contato.service';
   styleUrl: './contato.css',
 })
 export class Contato {
+  private readonly detector = inject(ChangeDetectorRef);
   private readonly formBuilder = inject(FormBuilder);
   private readonly contatoService = inject(ContatoService);
   private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -40,11 +41,13 @@ export class Contato {
 
     this.contatoService.enviar(this.form.getRawValue()).subscribe({
       next: (resposta) => {
+        this.detector.markForCheck();
         this.sucesso = resposta.mensagem;
         this.form.reset();
         this.enviando = false;
       },
       error: (err: HttpErrorResponse) => {
+        this.detector.markForCheck();
         const errosBackend = err.error?.erros;
 
         this.erro =

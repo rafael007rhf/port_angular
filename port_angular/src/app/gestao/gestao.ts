@@ -1,10 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { Observable } from 'rxjs';
 import { Projeto, ProjetoService } from '../projeto.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-gestao',
@@ -13,9 +14,17 @@ import { Projeto, ProjetoService } from '../projeto.service';
   styleUrl: './gestao.css',
 })
 export class Gestao implements OnInit {
+  private readonly detector = inject(ChangeDetectorRef);
+  readonly auth = inject(AuthService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly projetoService = inject(ProjetoService);
   private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  readonly loginForm = this.formBuilder.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    senha: ['', Validators.required],
+  });
+  entrando = false;
 
   readonly form = this.formBuilder.nonNullable.group({
     nome: ['', [Validators.required, Validators.minLength(3)]],
@@ -35,7 +44,39 @@ export class Gestao implements OnInit {
   sucesso = '';
 
   ngOnInit(): void {
-    this.carregar();
+    if (this.auth.autenticado()) this.carregar();
+  }
+
+  entrar(): void {
+    if (this.entrando) return;
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+    this.entrando = true;
+    this.erro = '';
+    const { email, senha } = this.loginForm.getRawValue();
+    this.auth.entrar(email, senha).subscribe({
+      next: () => {
+        this.detector.markForCheck();
+        this.entrando = false;
+        this.loginForm.controls.senha.reset();
+        this.carregar();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.detector.markForCheck();
+        this.entrando = false;
+        this.erro = this.mensagemDoErro(err, 'Não foi possível entrar. Confira se a API está ligada.');
+      },
+    });
+  }
+
+  sair(): void {
+    this.auth.sair();
+    this.projetos = [];
+    this.limparFormulario();
+    this.sucesso = '';
+    this.erro = '';
   }
 
   carregar(): void {
@@ -44,11 +85,13 @@ export class Gestao implements OnInit {
 
     this.projetoService.listar(true).subscribe({
       next: (projetos) => {
+        this.detector.markForCheck();
         this.projetos = projetos;
         this.carregando = false;
       },
-      error: () => {
-        this.erro = 'Não foi possível carregar os projetos da gestão.';
+      error: (err: HttpErrorResponse) => {
+        this.detector.markForCheck();
+        this.erro = this.mensagemDoErro(err, 'Não foi possível carregar os projetos da gestão.');
         this.carregando = false;
       },
     });
@@ -79,12 +122,14 @@ export class Gestao implements OnInit {
 
     requisicao.subscribe({
       next: () => {
+        this.detector.markForCheck();
         this.sucesso = id === null ? 'Projeto adicionado com sucesso.' : 'Projeto atualizado com sucesso.';
         this.limparFormulario();
         this.salvando = false;
         this.carregar();
       },
       error: (err: HttpErrorResponse) => {
+        this.detector.markForCheck();
         this.erro = this.mensagemDoErro(err, 'Não foi possível salvar o projeto.');
         this.salvando = false;
       },
@@ -131,6 +176,7 @@ export class Gestao implements OnInit {
 
     this.projetoService.excluir(id).subscribe({
       next: () => {
+        this.detector.markForCheck();
         this.projetos = this.projetos.filter((item) => item.id !== id);
         this.sucesso = 'Projeto excluído com sucesso.';
         this.excluindoId = null;
@@ -140,6 +186,7 @@ export class Gestao implements OnInit {
         }
       },
       error: (err: HttpErrorResponse) => {
+        this.detector.markForCheck();
         this.erro = this.mensagemDoErro(err, 'Não foi possível excluir o projeto.');
         this.excluindoId = null;
       },
@@ -165,6 +212,11 @@ export class Gestao implements OnInit {
   }
 
   private mensagemDoErro(err: HttpErrorResponse, padrao: string): string {
+    if (err.status === 401) {
+      this.auth.sair();
+      this.projetos = [];
+      this.limparFormulario();
+    }
     return typeof err.error?.erro === 'string' ? err.error.erro : padrao;
   }
 }
