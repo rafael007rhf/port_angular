@@ -23,7 +23,7 @@ export interface RespostaAtualizacaoProjeto {
 @Injectable({ providedIn: 'root' })
 export class ProjetoService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8000/api/projetos.php';
+  private readonly apiUrl = 'http://localhost:3000/api/projetos';
 
   listar(todos = false): Observable<Projeto[]> {
     if (todos) {

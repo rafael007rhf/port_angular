@@ -203,3 +203,9 @@ O projeto começou como a estrutura visual do portfólio. Na Aula 16 foram criad
 ## Autor
 
 **Rafael Freire** — aluno do curso Técnico em Informática do IFPR CRPG.
+
+## Aula 21 — O servidor em Node
+
+A pasta `api-node/` inicia a substituição do PHP. Na pasta, execute `npm install` e `npm start`; o GET `/api/projetos` atende na porta 3000, com os mesmos campos do contrato. `cors()` libera a leitura pelo Angular na porta 4200. O `app.listen` mantém o programa atendendo requisições.
+
+Uso de IA: ChatGPT auxiliou na implementação, documentação e verificação das Aulas 21 a 25 a partir dos enunciados fornecidos.
