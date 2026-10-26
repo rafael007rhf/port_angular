@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { API_URL } from './api.config';
 
 export interface NovoContato {
   nome: string;
@@ -17,7 +18,7 @@ export interface RespostaContato {
 @Injectable({ providedIn: 'root' })
 export class ContatoService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8000/api/contato.php';
+  private readonly apiUrl = `${API_URL}/contato`;
 
   enviar(contato: NovoContato): Observable<RespostaContato> {
     return this.http.post<RespostaContato>(this.apiUrl, contato);

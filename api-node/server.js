@@ -1,11 +1,49 @@
 const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const SEGREDO = process.env.JWT_SECRET;
+if (!SEGREDO || SEGREDO.length < 32) throw new Error('Defina JWT_SECRET com pelo menos 32 caracteres no ambiente ou em api-node/.env');
+const VALIDADE_TOKEN = '30m';
 
 const app = express();
 const PORTA = Number(process.env.PORT || 3000);
 app.use(cors());
 app.use(express.json({ limit: '100kb' }));
+
+// Um só middleware protege projetos e catálogo, sem copiar verify nas rotas.
+function autenticar(req, res, next) {
+  const cabecalho = req.get('Authorization') || '';
+  const partes = /^Bearer ([^\s]+)$/i.exec(cabecalho);
+  if (!partes) return res.status(401).json({ erro: 'Entre na gestão e envie o token Bearer para continuar.' });
+  try {
+    req.usuario = jwt.verify(partes[1], SEGREDO, { algorithms: ['HS256'] });
+    next();
+  } catch (erro) {
+    return res.status(401).json({ erro: 'Seu token expirou ou não é válido. Faça login novamente.' });
+  }
+}
+
+app.post('/api/login', async (req, res) => {
+  const dados = req.body;
+  if (!dados || typeof dados.email !== 'string' || !dados.email.trim() || typeof dados.senha !== 'string' || !dados.senha) {
+    return res.status(400).json({ erro: 'Informe email e senha' });
+  }
+  if (dados.email.length > 120 || Buffer.byteLength(dados.senha, 'utf8') > 72) return res.status(401).json({ erro: 'Não foi possível entrar com essas credenciais.' });
+  try {
+    const [linhas] = await pool.execute('SELECT id, email, senha_hash FROM usuarios WHERE email = ?', [dados.email.trim().toLowerCase()]);
+    const usuario = linhas[0];
+    if (!usuario || !(await bcrypt.compare(dados.senha, usuario.senha_hash))) {
+      return res.status(401).json({ erro: 'Não foi possível entrar com essas credenciais.' });
+    }
+    const token = jwt.sign({ id: usuario.id, email: usuario.email }, SEGREDO, { algorithm: 'HS256', expiresIn: VALIDADE_TOKEN });
+    res.json({ token });
+  } catch (erro) {
+    res.status(500).json({ erro: 'Não foi possível verificar o login.' });
+  }
+});
 
 const camposProjeto = 'id, nome, descricao, tecnologias, link_github, ano';
 
@@ -15,6 +53,16 @@ app.get('/api/projetos', async (req, res) => {
     res.json(projetos);
   } catch (erro) {
     res.status(500).json({ erro: 'Não foi possível consultar os projetos.' });
+  }
+});
+
+// A rota fixa vem antes de /:id: 'todos' não é um identificador de projeto.
+app.get('/api/projetos/todos', autenticar, async (req, res) => {
+  try {
+    const [projetos] = await pool.execute(`SELECT ${camposProjeto}, status FROM projetos ORDER BY ano DESC, id`);
+    res.json(projetos);
+  } catch (erro) {
+    res.status(500).json({ erro: 'Não foi possível consultar a gestão.' });
   }
 });
 
@@ -55,7 +103,7 @@ function valoresProjeto(dados) {
   return [dados.nome.trim(), dados.descricao ?? '', dados.tecnologias ?? '', dados.link_github ?? '', dados.ano ?? new Date().getFullYear(), dados.status ?? 'publicado'];
 }
 
-app.post('/api/projetos', async (req, res) => {
+app.post('/api/projetos', autenticar, async (req, res) => {
   const erro = validarProjeto(req.body);
   if (erro) return res.status(400).json({ erro });
   try {
@@ -66,7 +114,7 @@ app.post('/api/projetos', async (req, res) => {
   }
 });
 
-app.put('/api/projetos/:id', async (req, res) => {
+app.put('/api/projetos/:id', autenticar, async (req, res) => {
   const erro = validarProjeto(req.body);
   if (erro) return res.status(400).json({ erro });
   try {
@@ -78,7 +126,7 @@ app.put('/api/projetos/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/projetos/:id', async (req, res) => {
+app.delete('/api/projetos/:id', autenticar, async (req, res) => {
   try {
     const [resultado] = await pool.execute('DELETE FROM projetos WHERE id = ?', [req.params.id]);
     if (!resultado.affectedRows) return res.status(404).json({ erro: 'Projeto nao encontrado' });
@@ -102,7 +150,7 @@ function valoresTecnologia(dados) {
   return [dados.nome.trim(), dados.categoria.trim(), dados.descricao ?? '', dados.ano_criacao ?? null, dados.status ?? 'ativo'];
 }
 
-app.post('/api/tecnologias', async (req, res) => {
+app.post('/api/tecnologias', autenticar, async (req, res) => {
   const erro = validarTecnologia(req.body);
   if (erro) return res.status(400).json({ erro });
   try {
@@ -113,7 +161,7 @@ app.post('/api/tecnologias', async (req, res) => {
   }
 });
 
-app.put('/api/tecnologias/:id', async (req, res) => {
+app.put('/api/tecnologias/:id', autenticar, async (req, res) => {
   const erro = validarTecnologia(req.body);
   if (erro) return res.status(400).json({ erro });
   try {
@@ -125,13 +173,32 @@ app.put('/api/tecnologias/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/tecnologias/:id', async (req, res) => {
+app.delete('/api/tecnologias/:id', autenticar, async (req, res) => {
   try {
     const [resultado] = await pool.execute('DELETE FROM tecnologias WHERE id = ?', [req.params.id]);
     if (!resultado.affectedRows) return res.status(404).json({ erro: 'Tecnologia nao encontrada' });
     res.status(204).end();
   } catch (erro) {
     res.status(500).json({ erro: 'Não foi possível excluir a tecnologia.' });
+  }
+});
+
+// Mantém o formulário de contato funcionando sem precisar iniciar a API PHP antiga.
+app.post('/api/contato', async (req, res) => {
+  const dados = req.body || {};
+  const nome = typeof dados.nome === 'string' ? dados.nome.trim() : '';
+  const email = typeof dados.email === 'string' ? dados.email.trim() : '';
+  const mensagem = typeof dados.mensagem === 'string' ? dados.mensagem.trim() : '';
+  const erros = [];
+  if (!nome || nome.length > 120) erros.push('Informe um nome de até 120 caracteres.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 180) erros.push('Informe um e-mail valido.');
+  if (mensagem.length < 10 || Buffer.byteLength(mensagem, 'utf8') > 60000) erros.push('A mensagem deve ter no minimo 10 caracteres e até 60 KB.');
+  if (erros.length) return res.status(400).json({ erros });
+  try {
+    const [resultado] = await pool.execute('INSERT INTO contatos (nome, email, mensagem) VALUES (?, ?, ?)', [nome, email, mensagem]);
+    res.status(201).json({ sucesso: true, id: resultado.insertId, mensagem: 'Contato recebido com sucesso!' });
+  } catch (erro) {
+    res.status(500).json({ erro: 'Não foi possível registrar o contato.' });
   }
 });
 

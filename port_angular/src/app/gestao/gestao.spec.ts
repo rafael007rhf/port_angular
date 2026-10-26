@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { AuthService } from '../auth.service';
 
 import { ProjetoService } from '../projeto.service';
 import { Gestao } from './gestao';
@@ -15,6 +16,7 @@ describe('Gestao', () => {
     await TestBed.configureTestingModule({
       imports: [Gestao],
       providers: [
+        { provide: AuthService, useValue: { autenticado: () => true, sair: vi.fn() } },
         {
           provide: ProjetoService,
           useValue: {
