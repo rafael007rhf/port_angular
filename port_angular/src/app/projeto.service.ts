@@ -27,7 +27,7 @@ export class ProjetoService {
 
   listar(todos = false): Observable<Projeto[]> {
     if (todos) {
-      return this.http.get<Projeto[]>(this.apiUrl, { params: { todos: '1' } });
+      return this.http.get<Projeto[]>(`${this.apiUrl}/todos`);
     }
 
     return this.http.get<Projeto[]>(this.apiUrl);
@@ -38,10 +38,10 @@ export class ProjetoService {
   }
 
   atualizar(id: number, projeto: Projeto): Observable<RespostaAtualizacaoProjeto> {
-    return this.http.put<RespostaAtualizacaoProjeto>(this.apiUrl, projeto, { params: { id } });
+    return this.http.put<RespostaAtualizacaoProjeto>(`${this.apiUrl}/${id}`, projeto);
   }
 
   excluir(id: number): Observable<void> {
-    return this.http.delete<void>(this.apiUrl, { params: { id } });
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

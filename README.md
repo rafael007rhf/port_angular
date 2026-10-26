@@ -213,3 +213,7 @@ Uso de IA: ChatGPT auxiliou na implementação, documentação e verificação d
 ## Aula 22 — As leituras vêm do MariaDB
 
 `api-node/db.js` cria um pool com mysql2/promise. As rotas usam `await pool.execute` e `try/catch`: GET `/api/projetos` lista só publicados; GET `/api/projetos/:id` entrega um objeto ou 404 JSON; GET `/api/tecnologias` lista só ativas. O catálogo Angular também passa para a porta 3000. Uma falha do banco responde 500 JSON, sem divulgar SQL ou credenciais. Os campos públicos de projetos continuam os mesmos seis.
+
+## Aula 23 — API que cria, altera e apaga
+
+`express.json()` vem antes das rotas. POST cria com 201 e id; PUT retorna 200; DELETE usa 204 sem corpo e 404 ao repetir. Toda entrada em SQL passa por parâmetros `?`. O catálogo também recebe POST, PUT e DELETE, com categoria obrigatória. O `cors()` responde ao pré-voo OPTIONS. As URLs de atualização e exclusão no service Angular agora usam `/api/projetos/:id`.
