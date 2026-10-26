@@ -409,6 +409,38 @@ Resultado: **8 testes aprovados** (um teste principal e sete cenários): leitura
 Os novos commits seguem o formato `Aula NN: ...`. O histórico anterior foi preservado e contém mensagens fora desse padrão; não foi reescrito para simular um histórico diferente. A avaliação final cabe ao professor.
 
 
+## Aula 25 — O portfólio em React nasceu
+
+A pasta `portfolio-react/` é uma aplicação independente com Vite e React. Na raiz do repositório, em um terminal novo:
+
+```bash
+cd portfolio-react
+npm ci
+npm run dev
+```
+
+Abra **http://localhost:5173**. `npm run build` gera a versão de produção, e `npm run preview` permite conferi-la localmente. O React desta etapa não exige a API ligada: os três objetos de projetos são locais em `src/App.jsx`, conforme o checkpoint da Aula 25. A integração com API e as rotas são etapas seguintes.
+
+### Componentes e escolhas do checkpoint
+
+- `Cabecalho.jsx`: nome Rafael Freire e quatro links para Início, Sobre, Projetos e Contato, usando âncoras na mesma página.
+- `CardProjeto.jsx`: recebe **um objeto `projeto`** e lê nome, descrição, tecnologias, ano e link. O link “Ver no GitHub” só é renderizado quando `link_github` existe.
+- `Rodape.jsx`: autoria, IFPR e link para o perfil real no GitHub.
+- `Secao.jsx`: recebe `titulo`, `id` e `children`, reutilizando a estrutura de cada seção.
+- `App.jsx`: monta os componentes e três cards de trabalhos deste repositório: o frontend Angular, a API Node e a nova interface React. Os links apontam para o repositório real, sem projetos fictícios.
+- `index.css` e `main.jsx`: estilos globais e montagem da aplicação. Não há `App.css` nem a pasta `assets/` padrão do Vite.
+
+No JSX, `className` representa a classe CSS do elemento porque a propriedade JavaScript correspondente no DOM se chama `className`; `class` também é uma palavra reservada de JavaScript. `{projeto.nome}` avalia o texto do campo; `{{nome}}` cria um objeto, que o React não desenha como texto. Um componente recebe props; o nome passado precisa corresponder ao que ele lê.
+
+**Meta do checkpoint: A.** As evidências são a prop objeto em `CardProjeto.jsx`, `titulo/children` em `Secao.jsx`, os três cards em `App.jsx`, o rodapé próprio e o link condicional. A tela é responsiva e oferece foco visível e link para pular ao conteúdo.
+
+### Verificações dos frontends
+
+- Angular: build de produção aprovado e **10 testes aprovados em 6 arquivos**.
+- React: build de produção aprovado.
+- A verificação visual e o fluxo completo pelo navegador não foram concluídos: o Chromium deste ambiente apresentou falhas de execução. Os resultados acima se referem aos testes de integração HTTP/MariaDB, aos testes de componentes e aos builds.
+
+
 ## Registro histórico — Aulas 16 a 19
 
 As seções abaixo registram a implementação PHP anterior. Seus comandos e referências descrevem aquele estágio; para executar o projeto atual, use as instruções Node no início deste README.
@@ -557,4 +589,4 @@ O único polimento pesquisado foi o estado próprio de lista vazia: “Você ain
 
 Rafael Henrique Freire — Técnico em Informática, IFPR CRPG.
 
-Uso de IA: ChatGPT auxiliou na implementação, documentação e testes das Aulas 21 a 24 a partir dos enunciados fornecidos.
+Uso de IA: ChatGPT auxiliou na implementação, documentação e testes das Aulas 21 a 25 a partir dos enunciados fornecidos.
