@@ -209,3 +209,7 @@ O projeto começou como a estrutura visual do portfólio. Na Aula 16 foram criad
 A pasta `api-node/` inicia a substituição do PHP. Na pasta, execute `npm install` e `npm start`; o GET `/api/projetos` atende na porta 3000, com os mesmos campos do contrato. `cors()` libera a leitura pelo Angular na porta 4200. O `app.listen` mantém o programa atendendo requisições.
 
 Uso de IA: ChatGPT auxiliou na implementação, documentação e verificação das Aulas 21 a 25 a partir dos enunciados fornecidos.
+
+## Aula 22 — As leituras vêm do MariaDB
+
+`api-node/db.js` cria um pool com mysql2/promise. As rotas usam `await pool.execute` e `try/catch`: GET `/api/projetos` lista só publicados; GET `/api/projetos/:id` entrega um objeto ou 404 JSON; GET `/api/tecnologias` lista só ativas. O catálogo Angular também passa para a porta 3000. Uma falha do banco responde 500 JSON, sem divulgar SQL ou credenciais. Os campos públicos de projetos continuam os mesmos seis.
